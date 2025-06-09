@@ -271,7 +271,7 @@ export default function UserManagementTable() {
                 </DropdownTrigger>
                 <DropdownMenu>
                   <DropdownItem key="edit" onClick={() => handleEditUser(user)}>
-                    Edit
+                    Operate
                   </DropdownItem>
                   <DropdownItem
                     key="delete"

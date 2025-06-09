@@ -171,6 +171,53 @@ export default function EditUserPage() {
     toast.info("Change password feature is not implemented yet");
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const maxSizeInBytes = 3 * 1024 * 1024;
+    if (file.size > maxSizeInBytes) {
+      toast.error("Image size must be less than 3MB");
+      e.target.value = "";
+      return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Only JPG, JPEG, PNG, and WebP images are allowed");
+      e.target.value = "";
+      return;
+    }
+
+    toast.info("Uploading image...");
+    const reader = new FileReader();
+
+    reader.onload = async () => {
+      const base64Image = reader.result as string;
+
+      try {
+        setUserData((prev) => ({
+          ...prev,
+          picture: base64Image,
+        }));
+
+        const response = await auth_user.user_image({ data: base64Image });
+        if (response.success) {
+          let serverPath = response.data?.filename || "";
+          const staticUrl = serverPath;
+
+          setUserData((prev) => ({ ...prev, profile: staticUrl }));
+        } else {
+          toast.error("Failed to update image");
+        }
+      } catch (error) {
+        toast.error("Error uploading image");
+      }
+    };
+
+    reader.readAsDataURL(file);
+  };
+
   return (
     <DefaultLayout>
       {showCancelConfirm && (
@@ -223,8 +270,22 @@ export default function EditUserPage() {
               height={200}
             />
             <label className="absolute -bottom-1 -right-[0px] z-10 bg-secondary-500 text-white rounded-full p-2 cursor-pointer">
-              <FaCamera className="w-5 h-5" />
-              <input type="file" accept="image/*" className="hidden" disabled />
+              <FaCamera
+                className="w-5 h-5"
+                onClick={() => {
+                  !isEditing &&
+                    toast.info(
+                      "You must enable edit mode to change the profile picture"
+                    );
+                }}
+              />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={!isEditing}
+                onChange={handleImageUpload}
+              />
             </label>
           </div>
 

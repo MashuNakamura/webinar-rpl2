@@ -207,7 +207,6 @@ export default function ProfilPage() {
           localStorage.setItem("user_data", JSON.stringify(userData));
 
           setUserData((prev) => ({ ...prev, profile: staticUrl }));
-          setOriginalData((prev) => ({ ...prev, profile: staticUrl }));
 
           const resp = await auth_user.post_update_user_pfp(
             response.data.filename
@@ -325,12 +324,21 @@ export default function ProfilPage() {
               height={200}
             />
             <label className="absolute -bottom-1 -right-[0px] z-10 bg-secondary-500 text-white rounded-full p-2 cursor-pointer">
-              <FaCamera className="w-5 h-5" />
+              <FaCamera
+                className="w-5 h-5"
+                onClick={() => {
+                  !isEditing &&
+                    toast.info(
+                      "You need to edit your profile to change the image"
+                    );
+                }}
+              />
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageChange}
                 className="hidden"
+                disabled={!isEditing}
+                onChange={handleImageChange}
               />
             </label>
           </div>
